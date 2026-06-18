@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { authRoute } from "../../modules/auth/auth.routes";
+import { lipstickRoute } from "../../modules/lipsticks/lipstick.routes";
 
 const router = Router();
 
@@ -7,6 +8,10 @@ const moduleRoutes = [
     {
         path : "/auth",
         route : authRoute
+    },
+    {
+        path : "/lipstick",
+        route : lipstickRoute
     }
 ];
 

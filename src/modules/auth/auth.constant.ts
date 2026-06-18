@@ -1,4 +1,4 @@
 export const userRole = {
-    purchaser : "Purchaser",
-    seller : "Seller"
+    purchaser : "purchaser",
+    seller : "seller"
 }
