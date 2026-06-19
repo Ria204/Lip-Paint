@@ -1,3 +1,4 @@
+import { string } from "zod";
 import catchAsync from "../../app/utils/catchAsync";
 import sendResponse from "../../app/utils/sendResponse";
 import { lipstickService } from "./lipstick.service";
@@ -5,7 +6,7 @@ import { lipstickService } from "./lipstick.service";
 
 //Add product lipstick by the seller
 const addLipstick = catchAsync(async(req,res)=>{
-    const result = await lipstickService.addLipstick(req.body, req.user.userID);
+    const result = await lipstickService.addLipstick(req.headers.authorization as string, req.body, req.user.userID);
 
     sendResponse(res, {
         statusCode : 200,
@@ -17,7 +18,7 @@ const addLipstick = catchAsync(async(req,res)=>{
 
 //View single lipstick by both seller and purchaser
 const viewSingleLipstick = catchAsync(async(req,res)=>{
-    const result = await lipstickService.viewSingleLipstick(req.body, req.params.id);
+    const result = await lipstickService.viewSingleLipstick(req.headers.authorization as string, req.params.id);
    
     sendResponse(res, {
         statusCode : 200,
@@ -29,7 +30,7 @@ const viewSingleLipstick = catchAsync(async(req,res)=>{
 
 //View all list of lipsticks by both seller and purchaser
 const viewAllLipstick = catchAsync(async(req,res)=>{
-    const result = await lipstickService.viewAllLipstick(req.body);
+    const result = await lipstickService.viewAllLipstick(req.headers.authorization as string);
    
     sendResponse(res, {
         statusCode : 200,

@@ -4,57 +4,105 @@ import AppError from "../../app/errors/AppError";
 import httpStatus from "http-status";
 import { TLogin } from "../auth/auth.interface";
 import { User } from "../auth/auth.model";
-
+import jwt, { JwtPayload } from "jsonwebtoken";
+import config from "../../app/config/config.js";
 
 //Add product lipstick by the seller
-const addLipstick = async(payload : Partial<TLipstick>, sellerId : string)=>{
-    const lipstick = await lipstickModel.findOne({name : payload.name});
+const addLipstick = async (
+  token: string,
+  payload: Partial<TLipstick>,
+  sellerId: string,
+) => {
+  if (!token) {
+    throw new AppError(
+      httpStatus.UNAUTHORIZED,
+      "You are not authorized to proceed",
+    );
+  }
 
-    if(lipstick){
-        throw new AppError(httpStatus.BAD_REQUEST, "Lipstick with this name already exists")
-    };
+  const decoded = jwt.verify(
+    token,
+    config.jwt_access_secret as string,
+  ) as JwtPayload;
 
-    (payload as any).seller = sellerId;
+  const user = await User.findOne({ email: decoded.email });
 
-    const result = await lipstickModel.create(payload);
+  if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, "User does not exist");
+  }
 
-    return result
+  const lipstick = await lipstickModel.findOne({ name: payload.name });
+
+  if (lipstick) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      "Lipstick with this name already exists",
+    );
+  }
+
+  (payload as any).seller = sellerId;
+
+  const result = await lipstickModel.create(payload);
+
+  return result;
 };
 
 //View single lipstick by both seller and purchaser
-const viewSingleLipstick = async(payload : TLogin, lipstickId : any)=>{
-    const user = await User.findOne({email : payload.email});
+const viewSingleLipstick = async (token: string, lipstickId: any) => {
+    if (!token) {
+    throw new AppError(
+      httpStatus.UNAUTHORIZED,
+      "You are not authorized to proceed",
+    );
+  }
 
-    if(!user){
-        throw new AppError(httpStatus.NOT_FOUND, "User does not exist")
-    };
+  const decoded = jwt.verify(
+    token,
+    config.jwt_access_secret as string,
+  ) as JwtPayload;
 
-    const lipstick = await lipstickModel.findById(lipstickId);
+  const user = await User.findOne({ email: decoded.email });
 
-    if(!lipstick){
-        throw new AppError(httpStatus.NOT_FOUND, "Lipstick not found")
-    };
+  if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, "User does not exist");
+  }
 
+  const lipstick = await lipstickModel.findById(lipstickId);
 
-    return lipstick
-}; 
+  if (!lipstick) {
+    throw new AppError(httpStatus.NOT_FOUND, "Lipstick not found");
+  }
+
+  return lipstick;
+};
 
 //View all list of lipsticks by both seller and purchaser
-const viewAllLipstick = async (payload : TLogin)=>{
-    const user = await User.findOne({email : payload.email});
+const viewAllLipstick = async (token: string) => {
+    if (!token) {
+    throw new AppError(
+      httpStatus.UNAUTHORIZED,
+      "You are not authorized to proceed",
+    );
+  }
 
-    if(!user){
-        throw new AppError(httpStatus.NOT_FOUND, "User does not exist")
-    };   
+  const decoded = jwt.verify(
+    token,
+    config.jwt_access_secret as string,
+  ) as JwtPayload;
 
-    const lipstick = await lipstickModel.find();
+  const user = await User.findOne({ email: decoded.email });
 
-    return lipstick;
-}; 
+  if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, "User does not exist");
+  }
 
+  const lipstick = await lipstickModel.find();
+
+  return lipstick;
+};
 
 export const lipstickService = {
-    addLipstick,
-    viewSingleLipstick,
-    viewAllLipstick,
+  addLipstick,
+  viewSingleLipstick,
+  viewAllLipstick,
 };
