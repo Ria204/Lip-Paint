@@ -15,7 +15,35 @@ const addLipstick = catchAsync(async(req,res)=>{
     })
 });
 
+//View single lipstick by both seller and purchaser
+const viewSingleLipstick = catchAsync(async(req,res)=>{
+    const result = await lipstickService.viewSingleLipstick(req.body, req.params.id);
+   
+    sendResponse(res, {
+        statusCode : 200,
+        success : true,
+        message : "Lipstick data retrieved successfully",
+        data : result
+    })
+});
+
+//View all list of lipsticks by both seller and purchaser
+const viewAllLipstick = catchAsync(async(req,res)=>{
+    const result = await lipstickService.viewAllLipstick(req.body);
+   
+    sendResponse(res, {
+        statusCode : 200,
+        success : true,
+        message : "All list of lipsticks retrieved successfully",
+        data : result
+    })
+});
+
+
+
 
 export const lipstickController = {
-    addLipstick
+    addLipstick,
+    viewSingleLipstick,
+    viewAllLipstick
 };
